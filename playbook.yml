@@ -1,0 +1,15 @@
+- name: H3C Switch Backup
+  hosts: h3c_switches
+  gather_facts: no
+
+  tasks:
+    - name: Get running config
+      community.network.comware_command:
+        commands:
+          - display current-configuration
+      register: config
+
+    - name: Save config to file
+      copy:
+        content: "{{ config.stdout[0] }}"
+        dest: "backups/{{ inventory_hostname }}.txt"
