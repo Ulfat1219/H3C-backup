@@ -1,0 +1,26 @@
+- name: H3C Switch Backup
+  hosts: h3c_switches
+  gather_facts: no
+
+  vars:
+    backup_path: "./backups"
+
+  tasks:
+
+    - name: Get date
+      set_fact:
+        current_date: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M') }}"
+
+    - name: Disable paging
+      ansible.netcommon.cli_command:
+        command: screen-length disable
+
+    - name: Get configuration
+      ansible.netcommon.cli_command:
+        command: display current-configuration
+      register: config_output
+
+    - name: Save config
+      copy:
+        content: "{{ config_output.stdout }}"
+        dest: "{{ backup_path }}/{{ inventory_hostname }}_{{ current_date }}.cfg"
