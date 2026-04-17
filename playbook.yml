@@ -3,13 +3,13 @@
   gather_facts: no
 
   tasks:
-    - name: Get running config
+    - name: Get config
       community.network.comware_command:
         commands:
           - display current-configuration
       register: config
 
-    - name: Save config to file
+    - name: Save config
       copy:
         content: "{{ config.stdout[0] }}"
         dest: "backups/{{ inventory_hostname }}.txt"
