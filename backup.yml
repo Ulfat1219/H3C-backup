@@ -1,14 +1,15 @@
 ---
-- name: H3C Backup (Direct SSH)
+- name: H3C Backup Playbook
   hosts: all
   gather_facts: no
 
   tasks:
     - name: Konfiqurasiyani oxu
-      raw: "screen-length 0 temporary && display current-configuration"
+      cli_command:
+        command: display current-configuration
       register: switch_config
 
-    - name: Fayli saxla
+    - name: Fayli Semaphore serverinde saxla
       copy:
         content: "{{ switch_config.stdout }}"
         dest: "/tmp/{{ inventory_hostname }}.cfg"
