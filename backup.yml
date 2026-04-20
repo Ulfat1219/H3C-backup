@@ -1,22 +1,20 @@
 ---
-- name: Hazirliq ve Backup
+- name: H3C Switch-lerden Backup Alinmasi
   hosts: all
   gather_facts: no
 
   tasks:
-    - name: Paramiko-nun qurasdirildigindan emin olun
-      pip:
-        name: paramiko
-        state: present
-      delegate_to: localhost
-      run_once: true
+    - name: Terminal limitini sondur (Pagination off)
+      cli_command:
+        command: screen-length 0 temporary
+      ignore_errors: yes
 
     - name: Konfiqurasiyani oxu
       cli_command:
         command: display current-configuration
       register: switch_config
 
-    - name: Fayli /tmp qovluguna yaz
+    - name: Konfiqurasiyani Semaphore serverinde saxla
       copy:
         content: "{{ switch_config.stdout }}"
         dest: "/tmp/{{ inventory_hostname }}.cfg"
