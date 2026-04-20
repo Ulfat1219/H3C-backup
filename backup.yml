@@ -5,10 +5,11 @@
 
   tasks:
     - name: Konfiqurasiyani oxu
-      raw: display current-configuration
+      cli_command:
+        command: display current-configuration
       register: switch_config
 
-    - name: Konfiqurasiyani Semaphore serverinde saxla
+    - name: Konfiqurasiyani Semaphore serverinde /tmp qovluguna yaz
       copy:
         content: "{{ switch_config.stdout }}"
         dest: "/tmp/{{ inventory_hostname }}.cfg"
