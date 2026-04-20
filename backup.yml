@@ -1,20 +1,14 @@
 ---
-- name: H3C Switch-lerden Backup Alinmasi
+- name: H3C Backup (Direct SSH)
   hosts: all
   gather_facts: no
 
   tasks:
-    - name: Terminal limitini sondur (Pagination off)
-      cli_command:
-        command: screen-length 0 temporary
-      ignore_errors: yes
-
     - name: Konfiqurasiyani oxu
-      cli_command:
-        command: display current-configuration
+      raw: "screen-length 0 temporary && display current-configuration"
       register: switch_config
 
-    - name: Konfiqurasiyani Semaphore serverinde saxla
+    - name: Fayli saxla
       copy:
         content: "{{ switch_config.stdout }}"
         dest: "/tmp/{{ inventory_hostname }}.cfg"
