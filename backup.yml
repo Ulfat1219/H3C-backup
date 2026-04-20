@@ -1,26 +1,15 @@
-- name: H3C Switch Backup
-  hosts: h3c_switches
+---
+- name: H3C Switch-lerden Backup Alinmasi
+  hosts: all
   gather_facts: no
 
-  vars:
-    backup_path: "./backups"
-
   tasks:
+    - name: Konfiqurasiyani oxu
+      raw: display current-configuration
+      register: switch_config
 
-    - name: Get date
-      set_fact:
-        current_date: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M') }}"
-
-    - name: Disable paging
-      ansible.netcommon.cli_command:
-        command: screen-length disable
-
-    - name: Get configuration
-      ansible.netcommon.cli_command:
-        command: display current-configuration
-      register: config_output
-
-    - name: Save config
+    - name: Konfiqurasiyani Semaphore serverinde saxla
       copy:
-        content: "{{ config_output.stdout }}"
-        dest: "{{ backup_path }}/{{ inventory_hostname }}_{{ current_date }}.cfg"
+        content: "{{ switch_config.stdout }}"
+        dest: "/tmp/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
