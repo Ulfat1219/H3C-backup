@@ -5,15 +5,18 @@
   tasks:
     - name: Konfiqurasiyani oxu
       cli_command:
-        # 'screen-length disable' sehifeleme problemini aradan qaldirir
-        command: display current-configuration
-        # Bu hisse Ansible-a deyir ki, sehife-sehife dayanma, hamisini birdefelik oxu
-        send_initial_alpha: yes
+        # Birbaşa iki əmri ardıcıl göndəririk: 
+        # 1. Səhifələməni söndür, 2. Konfiqurasiyanı göstər
+        command: "{{ item }}"
+      loop:
+        - screen-length 0 temporary
+        - display current-configuration
       vars:
-        ansible_command_timeout: 600
-      register: switch_config
+        ansible_command_timeout: 300
+      register: switch_outputs
 
     - name: Fayli birbasa Windows qovluguna yaz
       shell: |
-        echo "{{ switch_config.stdout }}" > "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
+        # Bizə yalnız ikinci əmrin (display current-configuration) nəticəsi lazımdır
+        echo "{{ switch_outputs.results[1].stdout }}" > "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
       delegate_to: localhost
