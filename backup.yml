@@ -10,16 +10,11 @@
         ansible_command_timeout: 300
       register: switch_config
 
-    - name: Backup qovlugunu yarat
-      file:
-        path: "/mnt/win_backups"
-        state: directory
-      delegate_to: localhost
-      run_once: true
-
-    - name: Fayli Semaphore serverinde saxla
+    - name: Fayli Windows qovluguna kopyala
       copy:
         content: "{{ switch_config.stdout }}"
-        # Burada faylı birbaşa mount olunmuş Windows qovluğuna yazırıq
+        # Qeyd: 'state: directory' taskını sildik, çünki mount artıq hazırdır
         dest: "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
+        # Force: no əlavə edirik ki, icazələri dəyişməyə çalışmasın
+        force: yes
       delegate_to: localhost
