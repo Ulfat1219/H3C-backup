@@ -5,14 +5,15 @@
   tasks:
     - name: Konfiqurasiyani oxu
       cli_command:
+        # 'screen-length disable' sehifeleme problemini aradan qaldirir
         command: display current-configuration
+        # Bu hisse Ansible-a deyir ki, sehife-sehife dayanma, hamisini birdefelik oxu
+        send_initial_alpha: yes
       vars:
-        ansible_command_timeout: 300
+        ansible_command_timeout: 600
       register: switch_config
 
     - name: Fayli birbasa Windows qovluguna yaz
-      # 'copy' modulu evezine birbasa shell/redirect istifade edirik
-      # Bu, qovlugun yoxlanilmasi merhelesini yan kecir
       shell: |
         echo "{{ switch_config.stdout }}" > "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
       delegate_to: localhost
