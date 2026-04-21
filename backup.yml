@@ -1,4 +1,3 @@
----
 - name: H3C Backup Playbook
   hosts: all
   gather_facts: no
@@ -8,13 +7,12 @@
       cli_command:
         command: display current-configuration
       vars:
-        # Bu hissə Ansible-a 5 dəqiqəyə qədər gözləməyə icazə verir
         ansible_command_timeout: 300
       register: switch_config
 
     - name: Backup qovlugunu yarat
       file:
-        path: "/tmp/h3c_backups"
+        path: "/mnt/win_backups"
         state: directory
       delegate_to: localhost
       run_once: true
@@ -22,5 +20,6 @@
     - name: Fayli Semaphore serverinde saxla
       copy:
         content: "{{ switch_config.stdout }}"
-        dest: "/tmp/h3c_backups/{{ inventory_hostname }}_{{ ansible_date_time.date | default('today') }}.cfg"
+        # Burada faylı birbaşa mount olunmuş Windows qovluğuna yazırıq
+        dest: "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
       delegate_to: localhost
