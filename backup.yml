@@ -3,16 +3,23 @@
   gather_facts: no
 
   tasks:
+    - name: Sehifelemene sondur
+      cli_command:
+        command: screen-length 0 temporary
+
     - name: Konfiqurasiyani oxu
       cli_command:
-        # İki əmri bir sətirdə göndəririk (H3C bunu dəstəkləyir)
-        command: "screen-length 0 temporary ; display current-configuration"
+        command: display current-configuration
       vars:
-        # Gözləmə müddətini artıraq, amma 300 saniyə kifayət etməlidir
         ansible_command_timeout: 300
       register: switch_config
 
-    - name: Fayli birbasa Windows qovluguna yaz
-      shell: |
-        echo "{{ switch_config.stdout }}" > "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
+    - name: Fayli kopyala
+      copy:
+        content: "{{ switch_config.stdout }}"
+        dest: "/tmp/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
+
+    - name: Fayli Windows qovluguna dasi
+      shell: "cp /tmp/{{ inventory_hostname }}.cfg /mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
       delegate_to: localhost
