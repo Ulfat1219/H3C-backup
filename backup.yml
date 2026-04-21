@@ -5,18 +5,14 @@
   tasks:
     - name: Konfiqurasiyani oxu
       cli_command:
-        # Birbaşa iki əmri ardıcıl göndəririk: 
-        # 1. Səhifələməni söndür, 2. Konfiqurasiyanı göstər
-        command: "{{ item }}"
-      loop:
-        - screen-length 0 temporary
-        - display current-configuration
+        # İki əmri bir sətirdə göndəririk (H3C bunu dəstəkləyir)
+        command: "screen-length 0 temporary ; display current-configuration"
       vars:
+        # Gözləmə müddətini artıraq, amma 300 saniyə kifayət etməlidir
         ansible_command_timeout: 300
-      register: switch_outputs
+      register: switch_config
 
     - name: Fayli birbasa Windows qovluguna yaz
       shell: |
-        # Bizə yalnız ikinci əmrin (display current-configuration) nəticəsi lazımdır
-        echo "{{ switch_outputs.results[1].stdout }}" > "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
+        echo "{{ switch_config.stdout }}" > "/mnt/win_backups/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
       delegate_to: localhost
