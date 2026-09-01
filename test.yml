@@ -1,0 +1,19 @@
+---
+- name: Backup H3C Switch Configuration
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Disable paging
+      ansible.netcommon.cli_command:
+        command: screen-length disable
+
+    - name: Get current configuration
+      ansible.netcommon.cli_command:
+        command: display current-configuration
+      register: h3c_config
+
+    - name: Save configuration
+      ansible.builtin.copy:
+        content: "{{ h3c_config.stdout[0] }}"
+        dest: "backups/{{ inventory_hostname }}.cfg"
